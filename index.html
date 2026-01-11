@@ -5,77 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Voca High School Hero</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;700;900&display=swap');
-        
-        :root {
-            --safe-area-inset-bottom: env(safe-area-inset-bottom);
-        }
-
-        body { 
-            font-family: 'Pretendard', sans-serif; 
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        body { font-family: 'Pretendard', sans-serif; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
-
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes zoom-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
         .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
-        .animate-zoom-in { animation: zoom-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        
-        /* Mobile Touch Feedback */
-        .option-btn:active { 
-            transform: scale(0.96);
-            background-color: #F8FAFC;
-        }
-
-        /* Responsive Height Management */
-        .game-height {
-            min-height: calc(100vh - 180px);
-        }
-        @media (min-width: 1024px) {
-            .game-height { min-height: 600px; }
-        }
+        .option-btn:active { transform: scale(0.96); }
+        .game-height { min-height: calc(100vh - 200px); }
+        @media (min-width: 1024px) { .game-height { min-height: 600px; } }
     </style>
 </head>
-<body class="bg-[#F8FAFC] text-[#0F172A] antialiased">
+<body class="bg-[#F8FAFC] text-[#0F172A]">
     <!-- Header -->
-    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 py-3 md:px-6 md:py-4">
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 py-3">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2 md:gap-3">
-                <div class="bg-indigo-600 p-2 rounded-lg md:rounded-xl text-white shadow-lg shadow-indigo-100">
-                    <i data-lucide="graduation-cap" class="w-5 h-5 md:w-6 md:h-6"></i>
+            <div class="flex items-center gap-2">
+                <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-lg">
+                    <i data-lucide="graduation-cap"></i>
                 </div>
-                <div>
-                    <h1 class="text-lg md:text-xl font-black tracking-tight text-slate-800">보카<span class="text-indigo-600">히어로</span></h1>
-                    <p class="hidden md:block text-[10px] font-bold text-slate-400 uppercase tracking-widest">High School Hero</p>
-                </div>
+                <h1 class="text-lg font-black tracking-tight">보카<span class="text-indigo-600">히어로</span></h1>
             </div>
-            <div class="flex items-center gap-3">
+            <div id="auth-status-ui" class="flex items-center gap-3">
                 <div class="flex flex-col items-end">
-                    <span id="user-uid" class="text-[10px] md:text-xs font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">GUEST</span>
+                    <span id="user-display-name" class="text-[10px] font-bold text-slate-400">CONNECTING...</span>
+                    <span id="user-uid" class="text-[10px] font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded">ID: ---</span>
                 </div>
-                <div class="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-full border border-slate-200 flex items-center justify-center text-slate-500">
-                    <i data-lucide="user" class="w-4 h-4 md:w-5 md:h-5"></i>
+                <div id="user-avatar" class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-400">
+                    <i data-lucide="user" class="w-4 h-4"></i>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
-        <!-- Game Play Area -->
-        <div class="lg:col-span-8 space-y-4 md:space-y-6">
-            <div id="game-container" class="bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-white p-4 md:p-10 game-height flex flex-col items-center justify-center relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-48 h-48 md:w-64 md:h-64 bg-indigo-50/50 rounded-full -mr-20 -mt-20 blur-3xl pointer-events-none"></div>
+    <main class="max-w-6xl mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-8 space-y-4">
+            <div id="game-container" class="bg-white rounded-[2rem] shadow-xl border border-white p-6 game-height flex flex-col items-center justify-center relative overflow-hidden">
                 <div id="game-content" class="relative z-10 w-full flex flex-col items-center">
-                    <!-- Loading -->
                     <div class="flex flex-col items-center gap-4 text-slate-400">
                         <div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
                         <p class="font-bold text-sm">준비 중...</p>
@@ -83,49 +52,45 @@
                 </div>
             </div>
 
-            <!-- Stats Bar -->
-            <div class="grid grid-cols-2 gap-3 md:gap-4">
-                <div class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl border border-slate-200 shadow-sm flex items-center gap-3 md:gap-4">
-                    <div class="bg-blue-50 p-2 md:p-3 rounded-lg md:rounded-2xl text-blue-600"><i data-lucide="award" class="w-4 h-4 md:w-6 md:h-6"></i></div>
-                    <div class="overflow-hidden">
-                        <p class="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">My Best</p>
-                        <p id="best-score-display" class="text-xs md:text-sm font-bold text-slate-700 truncate">Loading...</p>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 flex items-center gap-3">
+                    <div class="text-blue-600"><i data-lucide="award"></i></div>
+                    <div>
+                        <p class="text-[10px] font-black text-slate-400 uppercase">My Best</p>
+                        <p id="best-score-display" class="text-sm font-bold text-slate-700">0 Pts</p>
                     </div>
                 </div>
-                <div class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl border border-slate-200 shadow-sm flex items-center gap-3 md:gap-4">
-                    <div id="network-status-icon" class="bg-slate-50 p-2 md:p-3 rounded-lg md:rounded-2xl text-slate-400"><i data-lucide="zap" class="w-4 h-4 md:w-6 md:h-6"></i></div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 flex items-center gap-3">
+                    <div id="status-icon" class="text-slate-300"><i data-lucide="zap"></i></div>
                     <div>
-                        <p class="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</p>
-                        <p id="network-label" class="text-xs md:text-sm font-bold text-slate-700">Offline</p>
+                        <p class="text-[10px] font-black text-slate-400 uppercase">Server</p>
+                        <p id="status-text" class="text-sm font-bold text-slate-700">Checking...</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Ranking Sidebar (Hidden on mobile by default, or shows below) -->
         <div class="lg:col-span-4">
-            <div class="bg-white rounded-[2rem] shadow-lg shadow-slate-200/50 p-6 md:p-8 border border-slate-100 flex flex-col min-h-[400px] lg:sticky lg:top-28">
+            <div class="bg-white rounded-[2rem] shadow-lg p-6 border border-slate-100 flex flex-col min-h-[400px]">
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="font-black text-xl flex items-center gap-2 text-slate-800">
+                    <h3 class="font-black text-xl flex items-center gap-2">
                         <i data-lucide="trophy" class="text-yellow-500 w-5 h-5"></i> 실시간 랭킹
                     </h3>
-                    <span id="live-badge" class="bg-slate-100 text-slate-400 text-[10px] px-2 py-1 rounded-full font-black">LOCAL</span>
+                    <span id="sync-badge" class="bg-slate-100 text-slate-400 text-[10px] px-2 py-1 rounded-full font-black">WAIT</span>
                 </div>
-                <div id="ranking-list" class="flex-1 space-y-3 overflow-y-auto max-h-[400px] lg:max-h-none pr-1 custom-scrollbar">
-                    <p class="text-center py-10 text-slate-400 text-sm italic">랭킹을 불러오고 있습니다...</p>
+                <div id="ranking-list" class="flex-1 space-y-3 overflow-y-auto max-h-[450px] pr-1 custom-scrollbar">
+                    <p class="text-center py-10 text-slate-400 text-sm italic">로딩 중...</p>
                 </div>
             </div>
         </div>
     </main>
 
-    <div class="h-8 md:hidden"></div> <!-- Spacer for mobile bottom -->
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, serverTimestamp, query } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
-        const firebaseConfig = {
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyDN4LmGgEAsrugUD7GT-6I_jMMeqqpMUmg",
             authDomain: "high-voca-hero.firebaseapp.com",
             projectId: "high-voca-hero",
@@ -134,200 +99,354 @@
             appId: "1:513002237580:web:916a52d370552c0019d5a9"
         };
 
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'voca-high-hero-kr';
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
         const WORDS = [
-            { word: 'Accomplish', meaning: '성취하다', hint: '성공적으로 완수하다' },
+            { word: 'Accomplish', meaning: '성취하다', hint: '목표를 성공적으로 완수하다' },
             { word: 'Abundant', meaning: '풍부한', hint: '양이 매우 많은 상태' },
             { word: 'Analyze', meaning: '분석하다', hint: '상세히 조사하고 검토하다' },
             { word: 'Alternative', meaning: '대안', hint: '다른 가능한 선택지' },
             { word: 'Comprehensive', meaning: '포괄적인', hint: '거의 모든 요소를 포함하는' },
-            { word: 'Distinguish', meaning: '구별하다', hint: '차이점을 인식하거나 대우하다' },
-            { word: 'Fundamental', meaning: '근본적인', hint: '가장 기초가 되는 핵심적인' },
+            { word: 'Fundamental', meaning: '근본적인', hint: '기초가 되는 핵심적인' },
             { word: 'Interpret', meaning: '해석하다', hint: '의미를 설명하거나 파악하다' },
-            { word: 'Objective', meaning: '객관적인', hint: '개인적 감정에 치우치지 않는' },
-            { word: 'Relevant', meaning: '관련된', hint: '적절하고 밀접하게 연결된' },
             { word: 'Sustainable', meaning: '지속 가능한', hint: '환경을 해치지 않고 유지 가능한' },
+            { word: 'Transformation', meaning: '변화', hint: '완전하고 극적인 변화' },
             { word: 'Vulnerable', meaning: '취약한', hint: '공격이나 상처를 입기 쉬운' },
-            { word: 'Significant', meaning: '중요한', hint: '주목할 만한 가치가 있는' },
-            { word: 'Rational', meaning: '합리적인', hint: '이성적 논리에 근거한' },
-            { word: 'Consequence', meaning: '결과', hint: '어떤 행동 뒤에 따르는 현상' },
-            { word: 'Compulsory', meaning: '의무적인', hint: '법이나 규칙에 의해 강제되는' }
+            { word: 'Significant', meaning: '중요한', hint: '의미가 크거나 영향력이 있는' },
+            { word: 'Rational', meaning: '합리적인', hint: '이성적이고 논리적인' },
+            { word: 'Maintain', meaning: '유지하다', hint: '어떤 상태가 계속되게 하다' },
+            { word: 'Establish', meaning: '설립하다', hint: '기틀을 다지거나 세우다' },
+            { word: 'Consequence', meaning: '결과', hint: '행동이나 사건 뒤에 따르는 현상' },
+            { word: 'Acknowledge', meaning: '인정하다', hint: '사실이나 존재를 받아들이다' },
+            { word: 'Advantageous', meaning: '이로운', hint: '자신에게 유리하거나 도움이 되는' },
+            { word: 'Compulsory', meaning: '의무적인', hint: '법이나 규칙으로 정해진' },
+            { word: 'Deficient', meaning: '부족한', hint: '필요한 양이나 질이 모자라는' },
+            { word: 'Encounter', meaning: '맞닥뜨리다', hint: '예상치 못하게 마주치다' },
+            { word: 'Appropriate', meaning: '적절한', hint: '상황에 알맞은' },
+            { word: 'Distinguish', meaning: '구별하다', hint: '차이를 인식하여 가려내다' },
+            { word: 'Persist', meaning: '지속하다', hint: '끈기 있게 계속하다' },
+            { word: 'Relevant', meaning: '관련된', hint: '주제나 상황과 밀접한' },
+            { word: 'Emphasis', meaning: '강조', hint: '중요하게 여겨 힘주어 말함' },
+            { word: 'Objective', meaning: '객관적인', hint: '개인적 감정에 치우치지 않는' },
+            { word: 'Sufficient', meaning: '충분한', hint: '필요한 만큼의 양이 되는' },
+            { word: 'Acquire', meaning: '습득하다', hint: '노력하여 얻거나 배우다' },
+            { word: 'Cooperate', meaning: '협력하다', hint: '목표를 위해 함께 일하다' },
+            { word: 'Diverse', meaning: '다양한', hint: '종류가 여러 가지인' },
+            { word: 'Essential', meaning: '필수적인', hint: '없어서는 안 될 가장 중요한' },
+            { word: 'Generate', meaning: '발생시키다', hint: '에너지를 내거나 결과를 만들다' },
+            { word: 'Hypothesis', meaning: '가설', hint: '증명되지 않은 가정' },
+            { word: 'Innovative', meaning: '혁신적인', hint: '새롭고 창의적인' },
+            { word: 'Justify', meaning: '정당화하다', hint: '옳음을 증명하거나 변호하다' },
+            { word: 'Legitimate', meaning: '정당한', hint: '법적/논리적으로 타당한' },
+            { word: 'Manifest', meaning: '나타내다', hint: '분명하게 드러내 보이다' },
+            { word: 'Numerous', meaning: '수많은', hint: '매우 많은 수의' },
+            { word: 'Optimistic', meaning: '낙관적인', hint: '미래를 긍정적으로 보는' },
+            { word: 'Potential', meaning: '잠재적인', hint: '가능성을 품고 있는' },
+            { word: 'Reinforce', meaning: '강화하다', hint: '더욱 튼튼하거나 강하게 만들다' },
+            { word: 'Stimulate', meaning: '자극하다', hint: '활동을 촉진하거나 깨우다' },
+            { word: 'Tolerance', meaning: '관용', hint: '차이를 인정하고 참아줌' },
+            { word: 'Utilize', meaning: '이용하다', hint: '유용하게 활용하다' },
+            { word: 'Verify', meaning: '확인하다', hint: '사실 여부를 증명하여 확인하다' },
+            { word: 'Widespread', meaning: '널리 퍼진', hint: '광범위하게 존재하는' },
+            { word: 'Yield', meaning: '산출하다', hint: '이익이나 결과물을 내다' },
+            { word: 'Ambiguous', meaning: '모호한', hint: '의미가 불분명한' },
+            { word: 'Collaborate', meaning: '협력하다', hint: '공동으로 작업하다' },
+            { word: 'Evaluate', meaning: '평가하다', hint: '가치를 판단하거나 측정하다' }
         ];
 
-        let db, auth, currentUser = null;
-        let score = 0, combo = 0, timeLeft = 45, timer = null, currentWord = null;
-        let isFirebaseOk = false;
+        let user = null;
+        let score = 0, combo = 0, timeLeft = 45, timer = null;
+        let wrongWords = []; 
+        let currentPool = [];
+        let isReviewMode = false;
 
-        const gameContent = document.getElementById('game-content');
-        const rankingList = document.getElementById('ranking-list');
-        const bestScoreDisplay = document.getElementById('best-score-display');
-        const networkLabel = document.getElementById('network-label');
-        const userUidDisplay = document.getElementById('user-uid');
+        const ui = {
+            gameContent: document.getElementById('game-content'),
+            userName: document.getElementById('user-display-name'),
+            userUid: document.getElementById('user-uid'),
+            userAvatar: document.getElementById('user-avatar'),
+            statusText: document.getElementById('status-text'),
+            statusIcon: document.getElementById('status-icon'),
+            bestScore: document.getElementById('best-score-display'),
+            rankingList: document.getElementById('ranking-list'),
+            syncBadge: document.getElementById('sync-badge')
+        };
 
-        async function init() {
-            lucide.createIcons();
-            
+        const initAuth = async () => {
             try {
-                const app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        currentUser = user;
-                        isFirebaseOk = true;
-                        userUidDisplay.textContent = user.uid.substring(0, 8).toUpperCase();
-                        updateNetworkStatus(true);
-                        loadRankings();
-                        loadMyBest();
-                    } else {
-                        signInAnonymously(auth).catch(() => updateNetworkStatus(false));
-                    }
-                });
-            } catch (e) {
-                updateNetworkStatus(false);
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth Error:", error);
+                handleAuthFailure();
             }
+        };
 
-            setTimeout(() => {
-                if (gameContent.innerText.includes('준비 중')) showStart();
-            }, 1500);
-        }
+        const handleAuthFailure = () => {
+            ui.userName.textContent = "GUEST MODE";
+            ui.statusText.textContent = "Local Only";
+            ui.syncBadge.textContent = "OFFLINE";
+            showStart();
+        };
 
-        function updateNetworkStatus(ok) {
-            networkLabel.textContent = ok ? "Connected" : "Local Mode";
-            const badge = document.getElementById('live-badge');
-            if(ok) {
-                badge.className = "bg-red-500 text-white text-[10px] px-2 py-1 rounded-full font-black animate-pulse";
-                badge.textContent = "LIVE";
-                document.getElementById('network-status-icon').className = "bg-emerald-50 p-2 md:p-3 rounded-lg md:rounded-2xl text-emerald-600";
+        onAuthStateChanged(auth, (authUser) => {
+            user = authUser;
+            if (user) {
+                ui.userName.textContent = "HERO STUDENT";
+                ui.userUid.textContent = `ID: ${user.uid.substring(0, 8)}`;
+                ui.userAvatar.className = "w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white shadow-md";
+                ui.statusText.textContent = "Synced";
+                ui.statusIcon.className = "text-emerald-500";
+                ui.syncBadge.className = "bg-red-500 text-white text-[10px] px-2 py-1 rounded-full font-black animate-pulse";
+                ui.syncBadge.textContent = "LIVE";
+                loadMyBest();
+                subscribeToRankings();
             }
-        }
+            showStart();
+        });
 
         async function loadMyBest() {
-            if (!currentUser || !isFirebaseOk) return;
-            const snap = await getDoc(doc(db, "artifacts", "voca-high-hero-kr", "public", "data", "leaderboard", currentUser.uid));
-            if (snap.exists()) bestScoreDisplay.textContent = `${snap.data().score}점 (최고)`;
-            else bestScoreDisplay.textContent = "기록 없음";
+            if (!user) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', user.uid);
+                const snap = await getDoc(docRef);
+                if (snap.exists()) ui.bestScore.textContent = `${snap.data().score} Pts`;
+            } catch (e) { console.warn(e); }
         }
 
-        function loadRankings() {
-            if (!isFirebaseOk) return;
-            onSnapshot(collection(db, "artifacts", "voca-high-hero-kr", "public", "data", "leaderboard"), (snap) => {
-                const list = snap.docs.map(d => d.data()).sort((a,b) => b.score - a.score).slice(0, 5);
-                rankingList.innerHTML = list.map((item, i) => `
-                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-                        <div class="flex items-center gap-3">
-                            <span class="font-black text-slate-300 w-4">${i+1}</span>
-                            <span class="text-xs font-bold text-slate-600">STUDENT_${item.userId?.substring(0,4)}</span>
+        function subscribeToRankings() {
+            if (!user) return;
+            const rankCol = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
+            onSnapshot(rankCol, (snap) => {
+                const rankings = snap.docs.map(d => d.data())
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, 10);
+                renderRankings(rankings);
+            }, (err) => console.error("Snapshot Error:", err));
+        }
+
+        function renderRankings(list) {
+            if (list.length === 0) {
+                ui.rankingList.innerHTML = `<p class="text-center py-10 text-slate-400 text-sm">첫 번째 영웅이 되어보세요!</p>`;
+                return;
+            }
+            ui.rankingList.innerHTML = list.map((item, i) => {
+                const isMe = user && item.userId === user.uid;
+                return `
+                <div class="flex items-center justify-between p-3 rounded-xl ${isMe ? 'bg-indigo-50 border-indigo-200 border shadow-sm' : 'bg-slate-50 border border-transparent'}">
+                    <div class="flex items-center gap-3">
+                        <span class="font-black ${i < 3 ? 'text-indigo-600' : 'text-slate-300'} w-4">${i+1}</span>
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold text-slate-700">${isMe ? '나 (Hero)' : 'STUDENT_' + item.userId.substring(0, 4)}</span>
                         </div>
-                        <span class="font-black text-indigo-600">${item.score}</span>
                     </div>
-                `).join('');
-            });
+                    <span class="font-black text-indigo-600">${item.score}</span>
+                </div>`;
+            }).join('');
         }
 
         function showStart() {
-            gameContent.innerHTML = `
-                <div class="text-center space-y-6 md:space-y-8 animate-zoom-in p-4">
-                    <div class="w-20 h-20 md:w-24 md:h-24 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto shadow-inner transform -rotate-3">
-                        <i data-lucide="zap" class="w-10 h-10 md:w-12 md:h-12"></i>
+            isReviewMode = false;
+            ui.gameContent.innerHTML = `
+                <div class="text-center space-y-6 animate-fade-in p-4">
+                    <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto shadow-inner transform rotate-3">
+                        <i data-lucide="book-open" class="w-10 h-10"></i>
                     </div>
                     <div class="space-y-2">
-                        <h2 class="text-2xl md:text-4xl font-black text-slate-800">단어 실력을<br class="md:hidden"/> 증명하세요!</h2>
-                        <p class="text-slate-400 text-sm font-medium">45초 동안 최대한 많은 단어를 맞히세요.</p>
+                        <h2 class="text-3xl font-black text-slate-800">보카 히어로 챌린지</h2>
+                        <p class="text-slate-400 text-sm">중복 없이 모든 단어를 마스터해 보세요.</p>
                     </div>
-                    <button id="start-btn" class="w-full md:w-auto bg-indigo-600 text-white px-10 py-4 md:py-5 rounded-2xl font-black text-lg shadow-xl hover:bg-indigo-700 transition-all active:scale-95">
-                        시작하기
+                    <button id="start-btn" class="bg-indigo-600 text-white px-12 py-4 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all">
+                        학습 시작
                     </button>
                 </div>
             `;
             lucide.createIcons();
-            document.getElementById('start-btn').onclick = startGame;
+            document.getElementById('start-btn').onclick = () => startGame(false);
         }
 
-        function startGame() {
-            score = 0; combo = 0; timeLeft = 45;
-            nextQuestion();
+        function startGame(review = false) {
+            isReviewMode = review;
+            score = 0; 
+            combo = 0; 
+            timeLeft = review ? Math.min(30, wrongWords.length * 5) : 45; 
+            
+            // 셔플 및 풀 구성 (중복 방지)
+            if (review) {
+                currentPool = [...wrongWords].sort(() => 0.5 - Math.random());
+            } else {
+                currentPool = [...WORDS].sort(() => 0.5 - Math.random());
+                wrongWords = []; 
+            }
+
+            runNext();
+            
+            if (timer) clearInterval(timer);
             timer = setInterval(() => {
                 timeLeft--;
-                if (timeLeft <= 0) endGame();
-                else updateUI();
+                if (timeLeft <= 0) finishGame();
+                else updateGameUI();
             }, 1000);
         }
 
-        function nextQuestion() {
-            currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
-            const options = [currentWord.meaning, ...WORDS.filter(w => w.meaning !== currentWord.meaning).sort(() => Math.random() - 0.5).slice(0, 3).map(w => w.meaning)].sort(() => Math.random() - 0.5);
+        function runNext() {
+            if (currentPool.length === 0) {
+                finishGame();
+                return;
+            }
+
+            const current = currentPool.pop();
+            const otherMeanings = WORDS.filter(w => w.meaning !== current.meaning).map(w => w.meaning);
+            const options = [current.meaning, ...otherMeanings.sort(() => 0.5 - Math.random()).slice(0, 3)].sort(() => 0.5 - Math.random());
             
-            gameContent.innerHTML = `
-                <div class="w-full animate-fade-in flex flex-col h-full">
-                    <div class="flex justify-between items-center mb-6 md:mb-10">
+            ui.gameContent.innerHTML = `
+                <div class="w-full flex flex-col h-full animate-fade-in">
+                    <div class="flex justify-between items-center mb-6">
                         <div class="flex gap-2">
-                            <div class="bg-slate-100 px-3 py-1 rounded-lg text-[10px] font-black text-indigo-600">SCORE ${score}</div>
-                            <div class="bg-orange-100 px-3 py-1 rounded-lg text-[10px] font-black text-orange-600">COMBO ${combo}</div>
+                            <div class="${isReviewMode ? 'bg-red-500' : 'bg-indigo-600'} text-white px-3 py-1 rounded-lg text-[10px] font-black shadow-md uppercase">
+                                ${isReviewMode ? 'Review Mode' : 'Play Mode'}
+                            </div>
+                            <div class="bg-slate-800 text-white px-3 py-1 rounded-lg text-[10px] font-black shadow-md">SCORE ${score}</div>
                         </div>
-                        <div id="timer-ui" class="text-sm font-mono font-black text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">${timeLeft}s</div>
+                        <div id="time-display" class="font-black text-slate-800 bg-slate-100 px-4 py-1 rounded-full border border-slate-200">${timeLeft}s</div>
+                    </div>
+                    <div class="text-center py-6 flex-1 flex flex-col justify-center">
+                        <span class="text-indigo-500 text-[10px] font-black tracking-widest uppercase mb-1">Question</span>
+                        <h3 class="text-5xl md:text-6xl font-black text-slate-800 mb-2 tracking-tight">${current.word}</h3>
+                        <div class="bg-slate-50 inline-block px-4 py-1.5 rounded-full border border-slate-100 mt-2 mx-auto">
+                            <p class="text-slate-500 text-sm font-medium">"${current.hint}"</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full mt-4">
+                        ${options.map(opt => `<button class="opt-btn bg-white border-2 border-slate-100 p-4 rounded-2xl font-bold text-slate-700 hover:border-indigo-200 transition-all option-btn text-lg" data-val="${opt}">${opt}</button>`).join('')}
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span class="text-[10px] font-bold text-slate-300">REMAINING: ${currentPool.length}</span>
+                    </div>
+                </div>
+            `;
+            
+            document.querySelectorAll('.opt-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const isCorrect = btn.dataset.val === current.meaning;
+                    if (isCorrect) {
+                        score += (10 + combo); 
+                        combo++;
+                        btn.className = "opt-btn bg-emerald-500 border-emerald-500 text-white p-4 rounded-2xl font-bold text-lg pointer-events-none";
+                        setTimeout(runNext, 400);
+                    } else {
+                        if (!isReviewMode && !wrongWords.some(w => w.word === current.word)) {
+                            wrongWords.push(current);
+                        }
+                        combo = 0;
+                        btn.className = "opt-btn bg-red-500 border-red-500 text-white p-4 rounded-2xl font-bold text-lg pointer-events-none";
+                        setTimeout(runNext, 600);
+                    }
+                };
+            });
+        }
+
+        function updateGameUI() {
+            const td = document.getElementById('time-display');
+            if (td) {
+                td.textContent = `${timeLeft}s`;
+                if (timeLeft < 10) td.className = "font-black text-red-500 bg-red-50 px-4 py-1 rounded-full border border-red-200 animate-pulse";
+            }
+        }
+
+        async function finishGame() {
+            clearInterval(timer);
+            const totalWrong = wrongWords.length;
+
+            ui.gameContent.innerHTML = `
+                <div class="text-center space-y-6 animate-fade-in w-full overflow-y-auto max-h-[550px] custom-scrollbar px-2">
+                    <div class="w-16 h-16 ${isReviewMode ? 'bg-emerald-500' : 'bg-yellow-400'} text-white rounded-full flex items-center justify-center mx-auto shadow-lg mt-4">
+                        <i data-lucide="${isReviewMode ? 'check' : 'trophy'}" class="w-8 h-8"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h2 class="text-2xl font-black text-slate-800">
+                            ${isReviewMode ? '복습 완료!' : '최종 스코어: <span class="text-indigo-600">' + score + '</span>'}
+                        </h2>
+                        <p class="text-slate-400 text-sm font-bold">
+                            ${isReviewMode ? '오답들을 다시 한번 확인했습니다.' : '오늘의 학습 결과입니다.'}
+                        </p>
                     </div>
                     
-                    <div class="text-center flex-1 flex flex-col justify-center mb-8">
-                        <h3 class="text-4xl md:text-6xl font-black text-slate-800 mb-2 md:mb-4 break-all">${currentWord.word}</h3>
-                        <p class="text-slate-400 text-xs md:text-sm font-medium italic">"${currentWord.hint}"</p>
-                    </div>
+                    ${totalWrong > 0 && !isReviewMode ? `
+                        <div class="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+                            <div class="bg-red-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+                                <h3 class="text-red-600 font-black text-sm flex items-center gap-2">
+                                    <i data-lucide="alert-circle" class="w-4 h-4"></i> 틀린 단어 (${totalWrong})
+                                </h3>
+                                <button id="review-btn" class="bg-red-600 text-white text-[10px] px-3 py-1 rounded-full font-black hover:bg-red-700 transition-colors">
+                                    지금 바로 복습하기
+                                </button>
+                            </div>
+                            <div class="divide-y divide-slate-100 text-left">
+                                ${wrongWords.slice(0, 5).map(w => `
+                                    <div class="p-4">
+                                        <div class="flex justify-between items-start">
+                                            <span class="font-black text-indigo-600 text-lg">${w.word}</span>
+                                            <span class="text-slate-800 font-bold">${w.meaning}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                                ${totalWrong > 5 ? `<div class="p-3 text-center text-slate-300 text-[10px] font-bold">외 ${totalWrong-5}개의 단어 더 있음</div>` : ''}
+                            </div>
+                        </div>
+                    ` : (isReviewMode ? `
+                        <div class="bg-emerald-50 p-8 rounded-3xl border border-emerald-100">
+                            <p class="text-emerald-600 font-black text-lg">오답 정복 완료! 🎉</p>
+                            <p class="text-emerald-400 text-sm">실력이 쑥쑥 늘고 있어요.</p>
+                        </div>
+                    ` : `
+                        <div class="bg-emerald-50 p-8 rounded-3xl border border-emerald-100">
+                            <p class="text-emerald-600 font-black">만점입니다! 틀린 단어가 없어요. 🎉</p>
+                        </div>
+                    `)}
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
-                        ${options.map(opt => `<button class="opt-btn bg-white border-2 border-slate-100 p-4 md:p-5 rounded-xl md:rounded-2xl font-bold text-sm md:text-lg text-slate-700 shadow-sm transition-all" data-val="${opt}">${opt}</button>`).join('')}
+                    <div class="pt-4 pb-8 flex flex-col sm:flex-row gap-3 justify-center">
+                        <button id="retry-btn" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="refresh-cw" class="w-5 h-5"></i> 새 게임 시작
+                        </button>
+                        ${isReviewMode ? `
+                        <button id="back-start-btn" class="bg-slate-100 text-slate-600 px-8 py-4 rounded-2xl font-black active:scale-95 transition-all">
+                            메인으로
+                        </button>
+                        ` : ''}
                     </div>
                 </div>
             `;
-            
-            document.querySelectorAll('.opt-btn').forEach(b => b.onclick = (e) => checkAnswer(e.target, e.target.dataset.val));
-        }
+            lucide.createIcons();
+            document.getElementById('retry-btn').onclick = () => startGame(false);
+            if(document.getElementById('review-btn')) {
+                document.getElementById('review-btn').onclick = () => startGame(true);
+            }
+            if(document.getElementById('back-start-btn')) {
+                document.getElementById('back-start-btn').onclick = showStart;
+            }
 
-        function checkAnswer(el, val) {
-            document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
-            if (val === currentWord.meaning) {
-                score += (10 + combo); combo++;
-                el.className = "opt-btn bg-emerald-500 border-emerald-500 text-white p-4 md:p-5 rounded-xl md:rounded-2xl font-bold text-sm md:text-lg shadow-lg";
-                setTimeout(nextQuestion, 500);
-            } else {
-                combo = 0;
-                el.className = "opt-btn bg-red-500 border-red-500 text-white p-4 md:p-5 rounded-xl md:rounded-2xl font-bold text-sm md:text-lg shadow-lg";
-                setTimeout(nextQuestion, 800);
+            // 점수 저장 (플레이 모드에서만)
+            if (user && !isReviewMode) {
+                const ref = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', user.uid);
+                try {
+                    const snap = await getDoc(ref);
+                    if (!snap.exists() || snap.data().score < score) {
+                        await setDoc(ref, { userId: user.uid, score: score, updatedAt: serverTimestamp() });
+                        loadMyBest();
+                    }
+                } catch (e) { console.error("Save Error:", e); }
             }
         }
 
-        function updateUI() {
-            const t = document.getElementById('timer-ui');
-            if (t) {
-                t.textContent = `${timeLeft}s`;
-                if (timeLeft < 10) t.className = "text-sm font-mono font-black text-red-500 bg-red-50 px-3 py-1 rounded-lg animate-pulse";
-            }
-        }
-
-        async function endGame() {
-            clearInterval(timer);
-            gameContent.innerHTML = `
-                <div class="text-center space-y-6 animate-zoom-in">
-                    <h2 class="text-3xl font-black text-slate-800">학습 종료!</h2>
-                    <div class="bg-indigo-600 text-white p-8 rounded-3xl shadow-xl shadow-indigo-100">
-                        <p class="text-xs font-bold opacity-80 uppercase tracking-widest mb-1">Final Score</p>
-                        <p class="text-7xl font-black">${score}</p>
-                    </div>
-                    <button id="retry-btn" class="w-full md:w-auto bg-slate-900 text-white px-10 py-4 rounded-2xl font-black transition-all active:scale-95">다시 도전</button>
-                </div>
-            `;
-            document.getElementById('retry-btn').onclick = startGame;
-            
-            if (isFirebaseOk && currentUser) {
-                const ref = doc(db, "artifacts", "voca-high-hero-kr", "public", "data", "leaderboard", currentUser.uid);
-                const snap = await getDoc(ref);
-                if (!snap.exists() || snap.data().score < score) {
-                    await setDoc(ref, { userId: currentUser.uid, score, ts: serverTimestamp() });
-                    loadMyBest();
-                }
-            }
-        }
-
-        window.onload = init;
+        initAuth();
+        lucide.createIcons();
     </script>
 </body>
 </html>
